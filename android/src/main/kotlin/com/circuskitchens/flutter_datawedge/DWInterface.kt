@@ -3,10 +3,13 @@ package com.circuskitchens.flutter_datawedge
 
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.RECEIVER_EXPORTED
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.circuskitchens.flutter_datawedge.pigeon.*
 import java.util.function.IntConsumer
 
@@ -53,6 +56,7 @@ class DWInterface(val context: Context, val flutterApi: DataWedgeFlutterApi) : B
 
 
     // Registers a broadcast receive that listens to datawedge intents
+
     fun setupBroadcastReceiver() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(context.packageName + ".SCAN_EVENT")
@@ -60,7 +64,12 @@ class DWInterface(val context: Context, val flutterApi: DataWedgeFlutterApi) : B
         intentFilter.addAction(DWEvent.Action.value)
         intentFilter.addAction(DWEvent.ResultNotification.value)
         intentFilter.addCategory(Intent.CATEGORY_DEFAULT)
-        context.registerReceiver(this, intentFilter)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.registerReceiver(this, intentFilter,RECEIVER_EXPORTED)
+        }else{
+            context.registerReceiver(this, intentFilter)
+        }
     }
 
 
@@ -73,13 +82,11 @@ class DWInterface(val context: Context, val flutterApi: DataWedgeFlutterApi) : B
 
         // DataWedge Extras
         const val EXTRA_GET_VERSION_INFO = "com.symbol.datawedge.api.GET_VERSION_INFO"
-
         const val EXTRA_KEY_APPLICATION_NAME = "com.symbol.datawedge.api.APPLICATION_NAME"
         const val EXTRA_KEY_NOTIFICATION_TYPE = "NOTIFICATION_TYPE"
         const val EXTRA_SOFT_SCAN_TRIGGER = "com.symbol.datawedge.api.SOFT_SCAN_TRIGGER"
         const val EXTRA_RESULT_NOTIFICATION = "com.symbol.datawedge.api.NOTIFICATION"
         const val EXTRA_REGISTER_NOTIFICATION = "com.symbol.datawedge.api.REGISTER_FOR_NOTIFICATION"
-
         const val EXTRA_RESULT_NOTIFICATION_TYPE = "NOTIFICATION_TYPE"
         const val EXTRA_KEY_VALUE_SCANNER_STATUS = "SCANNER_STATUS"
         const val EXTRA_KEY_VALUE_PROFILE_SWITCH = "PROFILE_SWITCH"
